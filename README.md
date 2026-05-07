@@ -38,7 +38,7 @@ password right away).
    into the `<head>` of every page you want tracked:
 
    ```html
-   <script async src="https://your-pikaanalytics-host/track.js?site=YOUR_SITE_KEY"></script>
+   <script async src="https://your-pikaanalytics-host/pulse.js?site=YOUR_SITE_KEY"></script>
    ```
 
 4. Visit the page once to verify the event lands under **Visits**.
@@ -118,8 +118,8 @@ All tables live in a single SQLite database at `${DATA_PATH}/pikaanalytics.db`.
 Public:
 
 - `POST /api/login`
-- `GET  /track.js?site=SITE_KEY`
-- `POST /api/collect` (and `POST /collect`)
+- `GET  /pulse.js?site=SITE_KEY`
+- `POST /api/pulse`
 
 Authenticated (Bearer JWT):
 

@@ -26,36 +26,51 @@ func main() {
 
     r := gin.Default()
 
+    publicCORS := cors.New(cors.Config{
+        AllowAllOrigins:  true,
+        AllowMethods:     []string{"GET", "POST", "OPTIONS"},
+        AllowHeaders:     []string{"Origin", "Content-Type"},
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: false,
+        MaxAge:           24 * time.Hour,
+    })
+
     corsOrigins := os.Getenv("CORS_ORIGINS")
-    var allowedOrigins []string
-    allowCredentials := false
+    var adminCORSConfig cors.Config
     if corsOrigins == "" {
-        allowedOrigins = []string{"*"}
+        adminCORSConfig = cors.Config{
+            AllowAllOrigins:  true,
+            AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+            AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+            ExposeHeaders:    []string{"Content-Length"},
+            AllowCredentials: false,
+        }
     } else {
-        allowedOrigins = strings.Split(corsOrigins, ",")
+        allowedOrigins := strings.Split(corsOrigins, ",")
         for i, origin := range allowedOrigins {
             allowedOrigins[i] = strings.TrimSpace(origin)
         }
-        allowCredentials = true
+        adminCORSConfig = cors.Config{
+            AllowOrigins:     allowedOrigins,
+            AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+            AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+            ExposeHeaders:    []string{"Content-Length"},
+            AllowCredentials: true,
+        }
     }
+    adminCORS := cors.New(adminCORSConfig)
 
-    r.Use(cors.New(cors.Config{
-        AllowOrigins:     allowedOrigins,
-        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-        AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-        ExposeHeaders:    []string{"Content-Length"},
-        AllowCredentials: allowCredentials,
-    }))
+    // Public routes (open CORS — embedded on third-party sites)
+    r.GET("/pulse.js", publicCORS, handlers.TrackScript)
+    r.POST("/api/pulse", publicCORS, handlers.CollectEvent)
+    r.OPTIONS("/api/pulse", publicCORS)
 
-    // Public routes
-    r.POST("/api/login", handlers.Login)
-    r.GET("/track.js", handlers.TrackScript)
-    r.POST("/api/collect", handlers.CollectEvent)
-    r.POST("/collect", handlers.CollectEvent)
+    // Login uses admin CORS (whitelist when configured)
+    r.POST("/api/login", adminCORS, handlers.Login)
 
     // Protected routes
     api := r.Group("/api")
-    api.Use(middleware.AuthMiddleware())
+    api.Use(adminCORS, middleware.AuthMiddleware())
     {
         api.GET("/sites", handlers.GetSites)
         api.GET("/sites/:id", handlers.GetSite)

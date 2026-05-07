@@ -31,7 +31,7 @@ const API_BASE_URL = config.API_BASE_URL;
 
 function buildEmbedSnippet(siteKey) {
   const base = window.location.protocol + '//' + window.location.host;
-  return `<script async src="${base}/track.js?site=${encodeURIComponent(siteKey)}"></script>`;
+  return `<script async src="${base}/pulse.js?site=${encodeURIComponent(siteKey)}"></script>`;
 }
 
 function Sites({ user, onLogout }) {

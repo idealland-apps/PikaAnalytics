@@ -14,7 +14,7 @@ import (
 func TrackScript(c *gin.Context) {
     siteKey := c.Query("site")
     if siteKey == "" {
-        c.String(http.StatusBadRequest, "/* PikaAnalytics: missing site parameter */")
+        c.String(http.StatusBadRequest, "/* missing site parameter */")
         return
     }
 
@@ -22,7 +22,7 @@ func TrackScript(c *gin.Context) {
   try {
     var siteKey = %q;
     var scriptUrl = (document.currentScript && document.currentScript.src) ? document.currentScript.src : window.location.href;
-    var endpoint = new URL('/api/collect', scriptUrl).toString();
+    var endpoint = new URL('/api/pulse', scriptUrl).toString();
 
     function sessionId() {
       try {
@@ -48,12 +48,6 @@ func TrackScript(c *gin.Context) {
         screen_height: window.screen ? window.screen.height : 0
       };
       var body = JSON.stringify(payload);
-      try {
-        if (navigator.sendBeacon) {
-          var blob = new Blob([body], { type: 'application/json' });
-          if (navigator.sendBeacon(endpoint, blob)) return;
-        }
-      } catch (e) { /* fall through to fetch */ }
       fetch(endpoint, {
         method: 'POST',
         body: body,
