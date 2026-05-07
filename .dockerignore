@@ -1,0 +1,46 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+README.md
+
+# Node modules (will be installed in container)
+frontend/node_modules
+**/node_modules
+
+# Build artifacts
+dist/
+frontend/build
+
+# Development files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Database (will be created in container)
+*.db
+
+# Development scripts
+build.ps1
+build.sh
+
+# Docker files (not needed in image)
+docker-compose*.yml
+Dockerfile*
+nginx.conf

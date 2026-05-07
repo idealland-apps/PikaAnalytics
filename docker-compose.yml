@@ -1,0 +1,43 @@
+# PikaAnalytics Docker Compose
+version: '3.8'
+
+services:
+  pikaanalytics:
+    image: bytetopia/pikaanalytics:latest
+    container_name: pikaanalytics
+
+    ports:
+      - "8080:8080"
+
+    volumes:
+      - pikaanalytics_data:/app/data
+      # Optional: GeoLite2 databases for IP geolocation
+      # - ./geolite2:/app/geolite:ro
+
+    environment:
+      - DATA_PATH=/app/data
+      # - GEO_IP_DB_PATH=/app/geolite
+      # - CORS_ORIGINS=https://yourdomain.com
+
+    restart: unless-stopped
+
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8080/admin/"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+    networks:
+      - pikaanalytics_network
+
+    labels:
+      - "com.docker.compose.project=pikaanalytics"
+
+volumes:
+  pikaanalytics_data:
+    driver: local
+
+networks:
+  pikaanalytics_network:
+    driver: bridge
